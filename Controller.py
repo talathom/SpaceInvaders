@@ -39,7 +39,7 @@ class Controller(viz.EventClass):
 				y -= 60
 			else:
 				x += spacing
-		self.starttimer(2, 1/4, viz.FOREVER)
+		self.starttimer(2, .5, viz.FOREVER)
 		
 	def onKeyDown(self, key):
 		if key == "a" or key == viz.KEY_LEFT:
@@ -74,18 +74,21 @@ class Controller(viz.EventClass):
 							self.aliens.remove(alien)
 		elif num == 2:
 			for alien in self.aliens:
-				if not alien.canGoRight():
-					self.moveRight = False
 				if (not self.moveRight and not alien.canGoLeft()) or (self.moveRight and not alien.canGoRight()):
 					self.moveDown = True
 					self.moveRight = True
+				if not alien.canGoRight():
+					self.moveRight = False
 			for alien in self.aliens:
 				if self.moveDown:
 					alien.translate(alien.getX(), alien.getY()-15)
 				elif self.moveRight:
-					alien.translate(alien.getX() + 5, alien.getY())
+					alien.translate(alien.getX() + 15, alien.getY())
 				elif not self.moveRight:
-					alien.translate(alien.getX() - 5, alien.getY())
+					alien.translate(alien.getX() - 15, alien.getY())
+				#Check Collisions
+				if alien.getX()+48 > self.player.getX() and alien.getY()+32 > self.player.getY() and alien.getX() < self.player.getX() + 48 and alien.getY() < self.player.getY() + 32:
+					print("GAME OVER")
 			self.moveDown = False
 				
 					

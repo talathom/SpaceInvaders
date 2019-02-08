@@ -16,6 +16,9 @@ class PlayerShip():
 		viz.vertex(0, 20)
 		self.vertices = viz.endLayer()
 		
+	def delete(self):
+		self.vertices.remove()
+		
 	def translate(self, x, y):
 		self.x = x
 		self.y = y
