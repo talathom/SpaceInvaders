@@ -16,9 +16,11 @@ class PlayerShip():
 		viz.vertex(0, 20)
 		self.vertices = viz.endLayer()
 		
+		# Deletes the ship
 	def delete(self):
 		self.vertices.remove()
 		
+		#Moves the ship to a new center at x, y
 	def translate(self, x, y):
 		self.x = x
 		self.y = y
