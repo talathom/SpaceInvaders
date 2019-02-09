@@ -15,7 +15,7 @@ class Controller(viz.EventClass):
 		self.moveRight = True #Whether the aliens can move right
 		self.moveDown = False # Whether the aliens should move down
 		self.canFire = True #Stops a continuous stream of bullets from being fired
-		self.starttimer(3, 1, viz.FOREVER) # Timer to stop the continous stream of bullets
+		self.starttimer(3, .75, viz.FOREVER) # Timer to stop the continous stream of bullets
 		self.aliens = list() #List of aliens active on scren
 		numAliensPerRow = 6 #Number of aliens to spawn per row
 		spacing = 640 / numAliensPerRow #Proper spacing between aliens
@@ -37,7 +37,7 @@ class Controller(viz.EventClass):
 				y -= 60 # Move Y down
 			else:
 				x += spacing # Continues increasing X to ensure proper spacing
-		self.starttimer(2, .5, viz.FOREVER) # Starts the movement timer for aliens once they're all spawned
+		self.starttimer(2, .25, viz.FOREVER) # Starts the movement timer for aliens once they're all spawned
 		
 	def onKeyDown(self, key):
 		if key == "a" or key == viz.KEY_LEFT: #Move player left
@@ -49,6 +49,7 @@ class Controller(viz.EventClass):
 				self.player.translate(self.player.getX()+5, self.player.getY())
 		
 		if key == " " and self.canFire: #Player fires a bullet
+			viz.playSound("laser.wav")
 			self.bullets.append(Bullet(self.player.getX() + 23, self.player.getY() + 41))
 			self.canFire = False
 				
@@ -70,6 +71,7 @@ class Controller(viz.EventClass):
 							self.bullets.remove(bullet)
 							alien.delete()
 							self.aliens.remove(alien)
+							viz.playSound("boop.wav")
 							if len(self.aliens) == 0: # When no aliens remain after a collision
 								print("You Win!")
 		elif num == 2: #Alien movement timer
@@ -89,6 +91,7 @@ class Controller(viz.EventClass):
 				#Check Collisions
 				if alien.getX()+48 > self.player.getX() and alien.getY()+32 > self.player.getY() and alien.getX() < self.player.getX() + 48 and alien.getY() < self.player.getY() + 32:
 					print("GAME OVER") #Remove player ship if a collision exists
+					viz.playSound("explosion.wav")
 					self.player.delete()
 			self.moveDown = False # Reset the movedown once all aliens have been processed
 				
