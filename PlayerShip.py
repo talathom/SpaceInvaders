@@ -1,4 +1,4 @@
-﻿import viz
+﻿import viz   
 
 class PlayerShip():
 	def __init__(self):
