@@ -2,53 +2,71 @@
 from PlayerShip import *
 from Bullet import *
 from Alien import *
+import random
 
-class Controller(viz.EventClass):
+class Controller(viz.EventClass):		
+	def spawnAliens(self):
+			#Spawns more aliens per row as level gets high
+			if self.level >= 16:
+				self.numAliensPerRow == 10
+			elif self.level >= 12:
+				self.numAliensPerRow == 9
+			elif self.level >= 8:
+				self.numAliensPerRow == 8
+			elif self.level >= 4:
+				self.numAliensPerRow == 7
+			spacing = 640 / self.numAliensPerRow #Proper spacing between aliens
+			colorCounter = 0 #Counts the aliens spawned to color them properly
+			y = 180 #Default Y spawn for aliens
+			x = -290 #Default X spawn for aliens
+			while x <= 320 and colorCounter <= self.numAliensPerRow*3:
+				color = random.randint(0, 9)
+				self.aliens.append(Alien(color)) #Add a new alien to the list
+				self.aliens[colorCounter].translate(x, y)
+				colorCounter += 1
+				if colorCounter == self.numAliensPerRow: # When a new row begins
+					color = viz.BLUE # Change color
+					x = -290 # Reset X
+					y -= 60 # Move Y down
+				elif colorCounter == self.numAliensPerRow*2:
+					color = viz.RED # Change color
+					x = -290 # Reset X
+					y -= 60 # Move Y down
+				else:
+					x += spacing # Continues increasing X to ensure proper spacing
+			speed = 1.0/self.level
+			self.starttimer(2, speed, viz.FOREVER) # Starts the movement timer for aliens once they're all spawned
+			
 	def __init__(self):
 		viz.EventClass.__init__(self)
 		self.player = PlayerShip() # Initializes the player ship
 		self.callback(viz.KEYDOWN_EVENT, self.onKeyDown) # Callback for key press
 		self.callback(viz.TIMER_EVENT, self.onTimer) # Callback for timers
+		self.callback(viz.KEYUP_EVENT, self.onKeyUp)
 		self.player.translate(0, -220) # Moves the player to the correct position to start the game
 		self.bullets = list() # list of active bullets on the screen
 		self.timer = False #Whether the bullet timer has started, false if no bullets fired yet
 		self.moveRight = True #Whether the aliens can move right
 		self.moveDown = False # Whether the aliens should move down
 		self.canFire = True #Stops a continuous stream of bullets from being fired
+		self.fire = False # Whether the ship should be firing
 		self.pause = False # Controls whether the game is paused
-		self.starttimer(3, .75, viz.FOREVER) # Timer to stop the continous stream of bullets
-		self.aliens = list() #List of aliens active on scren
-		numAliensPerRow = 6 #Number of aliens to spawn per row
-		spacing = 640 / numAliensPerRow #Proper spacing between aliens
-		colorCounter = 0 #Counts the aliens spawned to color them properly
-		y = 180 #Default Y spawn for aliens
-		x = -290 #Default X spawn for aliens
-		color = viz.GREEN # Start by painting green aliens
-		while x <= 320 and colorCounter <= numAliensPerRow*3:
-			self.aliens.append(Alien(color)) #Add a new alien to the list
-			self.aliens[colorCounter].translate(x, y)
-			colorCounter += 1
-			if colorCounter == numAliensPerRow: # When a new row begins
-				color = viz.BLUE # Change color
-				x = -290 # Reset X
-				y -= 60 # Move Y down
-			elif colorCounter == numAliensPerRow*2:
-				color = viz.RED # Change color
-				x = -290 # Reset X
-				y -= 60 # Move Y down
-			else:
-				x += spacing # Continues increasing X to ensure proper spacing
-		self.starttimer(2, .25, viz.FOREVER) # Starts the movement timer for aliens once they're all spawned
+		self.leftUp = True # Tracks whether the left movement button is being pressed
+		self.rightUp = True # Traks whether the right movement button is being pressed
+		self.starttimer(4, .05, viz.FOREVER)
+		self.starttimer(3, .3, viz.FOREVER) # Timer to stop the continous stream of bullets
+		self.aliens = list() #List of aliens active on screen
+		self.level = 2.0
+		self.numAliensPerRow = 6
+		self.spawnAliens()
 		
 	def onKeyDown(self, key):
 		if key == "a" or key == viz.KEY_LEFT and not self.pause: #Move player left
-			if self.player.getX() - 5 > -320:
-				self.player.translate(self.player.getX()-5, self.player.getY())
+			self.leftUp = False
 			
 		if key == "d" or key == viz.KEY_RIGHT and not self.pause: #Move player right
-			if self.player.getX() + 53 < 320:
-				self.player.translate(self.player.getX()+5, self.player.getY())
-				
+			self.rightUp = False	
+			
 		if key == "p":
 			if not self.pause:
 				self.pause = True
@@ -56,13 +74,36 @@ class Controller(viz.EventClass):
 				self.pause = False
 		
 		if key == " " and self.canFire and not self.pause: #Player fires a bullet
-			viz.playSound("laser.wav")
-			self.bullets.append(Bullet(self.player.getX() + 23, self.player.getY() + 41))
-			self.canFire = False
+			self.fire = True
+			self.spawnBullet()
+		# Flags buttons as being held down
+		
+	def spawnBullet(self):
+		viz.playSound("laser.wav")
+		self.bullets.append(Bullet(self.player.getX() + 23, self.player.getY() + 41))
+		self.canFire = False
 				
-			if not self.timer: # Start bullet timer on first fire
-				self.starttimer(1, 1/25, viz.FOREVER)
-				self.timer = True
+		if not self.timer: # Start bullet timer on first fire
+			self.starttimer(1, 1/25, viz.FOREVER)
+			self.timer = True
+		
+	def onKeyUp(self, key):
+		if key == "a" or key == viz.KEY_LEFT:
+			self.leftUp = True
+		if key == "d" or key == viz.KEY_RIGHT:
+			self.rightUp = True
+		if key == " ":
+			self.fire = False
+			
+		# move the player left
+	def movePlayerLeft(self):
+		if self.player.getX() - 5 > -320:
+			self.player.translate(self.player.getX()-5, self.player.getY())
+			
+		# move the player right
+	def movePlayerRight(self):
+		if self.player.getX() + 53 < 320:
+			self.player.translate(self.player.getX()+5, self.player.getY())
 				
 	def onTimer(self, num):
 		if num == 1 and not self.pause: # Bullet Control Timer
@@ -80,7 +121,9 @@ class Controller(viz.EventClass):
 							self.aliens.remove(alien)
 							viz.playSound("boop.wav")
 							if len(self.aliens) == 0: # When no aliens remain after a collision
-								print("You Win!")
+								print("NEXT LEVEL")
+								self.level = self.level + 1
+								self.spawnAliens()
 		elif num == 2 and not self.pause: #Alien movement timer
 			for alien in self.aliens: # Check to see where the aliens can move
 				if (not self.moveRight and not alien.canGoLeft()) or (self.moveRight and not alien.canGoRight()):
@@ -101,8 +144,19 @@ class Controller(viz.EventClass):
 					viz.playSound("explosion.wav")
 					self.player.delete()
 					self.pause = True
+				if alien.getY() <= -240: #Check for alien off screen
+					alien.translate(alien.getX(), 230) #Moves an off bottom screen alien to top of screen
+					
 			self.moveDown = False # Reset the movedown once all aliens have been processed
 				
 					
 		elif num == 3 and not self.pause: #Firing timer
 			self.canFire = True
+			
+		elif num == 4 and not self.pause:
+			if not self.leftUp:
+				self.movePlayerLeft()
+			if not self.rightUp:
+				self.movePlayerRight()
+			if self.fire and self.canFire:
+				self.spawnBullet()

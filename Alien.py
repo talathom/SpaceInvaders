@@ -6,12 +6,30 @@ class Alien():
 		self.y = 0
 		viz.startLayer(viz.POINTS)
 		viz.pointSize(0)
-		viz.vertexColor(color)
+		viz.vertexColor(viz.BLACK)
 		viz.vertex(0, 0)
 		viz.vertex(48, 0)
 		viz.vertex(48, 32)
 		viz.vertex(0, 32)
-		image = viz.add('alien.png')
+		if color == 0:
+			image = viz.add('greenalien.png')
+		elif color == 1:
+			image = viz.add('bluealien.png')
+		elif color == 2:
+			image = viz.add('redalien.png')
+		elif color == 3:
+			image = viz.add('yellowalien.png')
+		elif color == 4:
+			image = viz.add('cyanalien.png')
+		elif color == 5:
+			image = viz.add('orangealien.png')
+		elif color == 6:
+			image = viz.add('pinkalien.png')
+		elif color == 7:
+			image = viz.add('purplealien.png')
+		else:
+			image = viz.add('alien.png')
+			
 		self.vertices = viz.endLayer()
 		self.quad = viz.addTexQuad()
 		self.quad.setPosition([self.x+24, self.y+16, 0])
