@@ -8,12 +8,9 @@ class PlayerShip():
 		self.y = 0
 		viz.vertex(0, 0)
 		viz.vertex(48, 0)
-		viz.vertex(48, 20)
-		viz.vertex(32, 20)
-		viz.vertex(32, 40)
-		viz.vertex(16, 40)
-		viz.vertex(16, 20)
-		viz.vertex(0, 20)
+		viz.vertex(48, 40)
+		viz.vertex(0, 40)
+		# Add ship texture
 		image = viz.add('player.png')
 		self.quad = viz.addTexQuad()
 		self.quad.setPosition([self.x+24, self.y+20, 0])

@@ -11,6 +11,7 @@ class Alien():
 		viz.vertex(48, 0)
 		viz.vertex(48, 32)
 		viz.vertex(0, 32)
+		# Picks an icon for the alien dependent on what arg was passed to the constructor
 		if color == 0:
 			image = viz.add('greenalien.png')
 		elif color == 1:

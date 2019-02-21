@@ -8,13 +8,13 @@ class Controller(viz.EventClass):
 	def spawnAliens(self):
 			#Spawns more aliens per row as level gets high
 			if self.level >= 16:
-				self.numAliensPerRow == 10
+				self.numAliensPerRow = 10
 			elif self.level >= 12:
-				self.numAliensPerRow == 9
+				self.numAliensPerRow = 9
 			elif self.level >= 8:
-				self.numAliensPerRow == 8
+				self.numAliensPerRow = 8
 			elif self.level >= 4:
-				self.numAliensPerRow == 7
+				self.numAliensPerRow = 7
 			spacing = 640 / self.numAliensPerRow #Proper spacing between aliens
 			colorCounter = 0 #Counts the aliens spawned to color them properly
 			y = 180 #Default Y spawn for aliens
@@ -57,6 +57,7 @@ class Controller(viz.EventClass):
 		self.starttimer(3, .3, viz.FOREVER) # Timer to stop the continous stream of bullets
 		self.aliens = list() #List of aliens active on screen
 		self.level = 2.0
+		self.score = 0
 		self.numAliensPerRow = 6
 		self.spawnAliens()
 		
@@ -80,7 +81,7 @@ class Controller(viz.EventClass):
 		
 	def spawnBullet(self):
 		viz.playSound("laser.wav")
-		self.bullets.append(Bullet(self.player.getX() + 23, self.player.getY() + 41))
+		self.bullets.append(Bullet(self.player.getX() + 23, self.player.getY() + 40))
 		self.canFire = False
 				
 		if not self.timer: # Start bullet timer on first fire
@@ -119,6 +120,7 @@ class Controller(viz.EventClass):
 							self.bullets.remove(bullet)
 							alien.delete()
 							self.aliens.remove(alien)
+							self.score += 100
 							viz.playSound("boop.wav")
 							if len(self.aliens) == 0: # When no aliens remain after a collision
 								print("NEXT LEVEL")
@@ -139,8 +141,8 @@ class Controller(viz.EventClass):
 				elif not self.moveRight: # If not moving right or down move left
 					alien.translate(alien.getX() - 15, alien.getY())
 				#Check Collisions
-				if alien.getX()+48 > self.player.getX() and alien.getY()+32 > self.player.getY() and alien.getX() < self.player.getX() + 48 and alien.getY() < self.player.getY() + 32:
-					print("GAME OVER") #Remove player ship if a collision exists
+				if alien.getX()+40 > self.player.getX() and alien.getY()+32 > self.player.getY() and alien.getX() < self.player.getX() + 40 and alien.getY() < self.player.getY() + 40:
+					print("GAME OVER - SCORE: "+ str(self.score)) #Remove player ship if a collision exists
 					viz.playSound("explosion.wav")
 					self.player.delete()
 					self.pause = True
@@ -154,6 +156,7 @@ class Controller(viz.EventClass):
 			self.canFire = True
 			
 		elif num == 4 and not self.pause:
+			# Timer that checks for keys being held down
 			if not self.leftUp:
 				self.movePlayerLeft()
 			if not self.rightUp:
